@@ -28,32 +28,34 @@ abstract class RaceTrack {
      */
     public void draw(GL2 gl, GLU glu, GLUT glut) {
         final float N = 25;
-        Vector rem = Vector.O;
-        Vector remn = Vector.O;
+        Vector rem = getPoint(0);
+        Vector remn = getNormal(0);
 
-        for (int i = 0; i <= N; i++) {
+        ShaderPrograms.trackShader.useProgram(gl);
+        Textures.track.enable(gl);
+        Textures.track.bind(gl);
+
+        for (int i = 1; i <= N; i++) {
             Vector v = getPoint(i/N);
             Vector n = getNormal(i/N);
 
-            if (rem != Vector.O && remn != Vector.O) {
-                gl.glColor3f(0f,255f,0f);
-                gl.glBegin(gl.GL_POLYGON);
-                    gl.glVertex3d(v.x, v.y, v.z);
-                    gl.glVertex3d(rem.x, rem.y, rem.z);
-                    gl.glVertex3d(rem.x + 2 * laneWidth * remn.x, rem.y + 2 * laneWidth * remn.y, rem.z);
-                    gl.glVertex3d(v.x + 2 * laneWidth * n.x, v.y + 2 * laneWidth * n.y, v.z);
-                gl.glEnd();
-                gl.glColor3f(0f,255f,255f);
-                gl.glBegin(gl.GL_POLYGON);
-                    gl.glVertex3d(v.x, v.y, v.z);
-                    gl.glVertex3d(rem.x, rem.y, rem.z);
-                    gl.glVertex3d(rem.x - 2 * laneWidth * remn.x, rem.y - 2 * laneWidth * remn.y, rem.z);
-                    gl.glVertex3d(v.x - 2 * laneWidth * n.x, v.y - 2 * laneWidth * n.y, v.z);
-                gl.glEnd();
-            }
+            gl.glColor3f(1, 1, 1);
+            gl.glBegin(gl.GL_POLYGON);
+                gl.glTexCoord2f(0, 0);
+                gl.glVertex3d(v.x - 2 * laneWidth * n.x, v.y - 2 * laneWidth * n.y, v.z);
+                gl.glTexCoord2f(0, 1);
+                gl.glVertex3d(rem.x - 2 * laneWidth * remn.x, rem.y - 2 * laneWidth * remn.y, rem.z);
+                gl.glTexCoord2f(1, 1);
+                gl.glVertex3d(rem.x + 2 * laneWidth * remn.x, rem.y + 2 * laneWidth * remn.y, rem.z);
+                gl.glTexCoord2f(1, 0);
+                gl.glVertex3d(v.x + 2 * laneWidth * n.x, v.y + 2 * laneWidth * n.y, v.z);
+            gl.glEnd();
+
             rem = v;
             remn = n;
         }
+
+        Textures.track.disable(gl);
     }
     
     /**
