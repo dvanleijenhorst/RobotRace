@@ -13,7 +13,7 @@ abstract class RaceTrack {
     /** The width of one lane. The total width of the track is 4 * laneWidth. */
     private final static float laneWidth = 1.22f;
     private final static float dLaneWidth = 2 * laneWidth;
-    private final static float laneHeight = 3.0f;
+    private final static float laneHeight = 2.0f;
     
     
     
@@ -37,7 +37,7 @@ abstract class RaceTrack {
     }
 
     private void drawTracks(GL2 gl) {
-        final float N = 25;
+        final float N = 24;
         Vector rem = getPoint(0);
         Vector remn = getNormal(0);
 
@@ -69,7 +69,7 @@ abstract class RaceTrack {
     }
 
     private void drawBricks(GL2 gl) {
-        final float N = 25;
+        final float N = 24;
         Vector rem = getPoint(0);
         Vector remn = getNormal(0);
 
