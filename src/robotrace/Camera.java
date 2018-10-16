@@ -40,6 +40,8 @@ class Camera {
         eye.x = gs.cnt.x + gs.vDist * Math.cos(gs.phi) * Math.cos(-gs.theta);
         eye.y = gs.cnt.y + gs.vDist * Math.cos(gs.phi) * Math.sin(-gs.theta);
         eye.z = gs.cnt.z + gs.vDist * Math.sin(gs.phi);
+        center = Vector.O;
+        up = Vector.Z;
     }
 
     /**

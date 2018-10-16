@@ -3,6 +3,7 @@ package robotrace;
 import com.jogamp.opengl.util.gl2.GLUT;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.glu.GLU;
+
 import static com.jogamp.opengl.GL2.*;
 
 /**
@@ -107,9 +108,12 @@ abstract class RaceTrack {
      * Use this method to find the position of a robot on the track.
      */
     public Vector getLanePoint(int lane, double t){
-
-        return Vector.O;
-
+        double x = lane - 1.5;
+        Vector v = getPoint(t);
+        Vector n = getNormal(t);
+        return new Vector(  v.x + x * n.x,
+                            v.y + x * n.y,
+                            v.z);
     }
     
     /**
@@ -117,9 +121,7 @@ abstract class RaceTrack {
      * Use this method to find the orientation of a robot on the track.
      */
     public Vector getLaneTangent(int lane, double t){
-        
-        return Vector.O;
-
+        return getTangent(t);
     }
     
     
@@ -130,5 +132,9 @@ abstract class RaceTrack {
     // Returns a tangent on the test track at 0 <= t < 1.
     protected abstract Vector getTangent(double t);
 
-    protected abstract Vector getNormal(double t);
+    public Vector getNormal(double t) {
+        Vector v = getTangent(t);
+        double length = Math.sqrt(Math.pow(v.x, 2) + Math.pow(v.y, 2));
+        return new Vector(v.y / length, -v.x / length, 0);
+    }
 }

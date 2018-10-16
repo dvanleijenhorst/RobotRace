@@ -112,9 +112,20 @@ public class RobotRace extends Base {
         // Track 2
         float g = 3.5f;
         raceTracks[1] = new BezierTrack(
-
-            new Vector[] {}
-
+            new Vector[] {
+                new Vector( 12, 4, 1),
+                new Vector( 12, 12, 1),
+                new Vector( 4, 4, 1),
+                new Vector(-4, 12, 1),
+                new Vector(-12, 20, 1),
+                new Vector(-20, 12, 1),
+                new Vector(-12, 4, 1),
+                new Vector(-4, -4, 1),
+                new Vector(-12, -12, 1),
+                new Vector(4, -16, 1),
+                new Vector(20, -20, 1),
+                new Vector(12, -4, 1)
+            }
         );
 
         // Initialize the terrain
@@ -239,10 +250,10 @@ public class RobotRace extends Base {
      */
     public void drawAxisFrame() {
         if (gs.showAxes) {
-            drawArrow(2, 0, 0, 255, 0, 0);
-            drawArrow(0, 2, 0, 0, 255, 0);
-            drawArrow(0, 0, 2, 0, 0, 255);
-            gl.glColor3f(255f,255f,0);
+            drawArrow(2, 0, 0, 1, 0, 0);
+            drawArrow(0, 2, 0, 0, 1, 0);
+            drawArrow(0, 0, 2, 0, 0, 1);
+            gl.glColor3f(1f,1f,0);
             glut.glutSolidSphere(0.2f,50,50);
         }
     }
