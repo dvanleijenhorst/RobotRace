@@ -71,6 +71,8 @@ public class RobotRace extends Base {
     /** Instance of the terrain. */
     private final Terrain terrain;
 
+    private long startTime = System.currentTimeMillis();
+
     /**
      * Constructs this robot race by initializing robots,
      * camera, track, and terrain.
@@ -184,7 +186,7 @@ public class RobotRace extends Base {
         gl.glLoadIdentity();
 
         // Add light source
-        gl.glLightfv(GL_LIGHT0, GL_POSITION, new float[]{0f,0f,0f,1f}, 0);
+        gl.glLightfv(GL_LIGHT0, GL_POSITION, new float[]{5f,5f,5f,1f}, 0);
 
         // Update the view according to the camera mode and robot of interest.
         // For camera modes 1 to 4, determine which robot to focus on.
@@ -229,7 +231,16 @@ public class RobotRace extends Base {
         // Draw the (first) robot.
         gl.glUseProgram(robotShader.getProgramID());
 
-        robots[0].draw(gl, glu, glut, 0);
+        gl.glTranslated(0, 10, 0);
+        float t = (float)(System.currentTimeMillis() - startTime) / 250;
+        robots[0].draw(gl, glu, glut, t);
+        gl.glTranslated(0, -5, 0);
+        robots[1].draw(gl, glu, glut, t);
+        gl.glTranslated(0, -5, 0);
+        robots[2].draw(gl, glu, glut, t);
+        gl.glTranslated(0, -5, 0);
+        robots[3].draw(gl, glu, glut, t);
+        gl.glTranslated(0, 10, 0);
 
 
         // Draw the race track.
