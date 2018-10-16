@@ -130,5 +130,9 @@ abstract class RaceTrack {
     // Returns a tangent on the test track at 0 <= t < 1.
     protected abstract Vector getTangent(double t);
 
-    protected abstract Vector getNormal(double t);
+    public Vector getNormal(double t) {
+        Vector v = getTangent(t);
+        double length = Math.sqrt(Math.pow(v.x, 2) + Math.pow(v.y, 2));
+        return new Vector(-v.y / length, v.x / length, 0);
+    }
 }

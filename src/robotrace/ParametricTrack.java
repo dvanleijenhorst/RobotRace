@@ -19,11 +19,4 @@ public class ParametricTrack extends RaceTrack {
                             28 * Math.PI * Math.cos(2 * Math.PI * t),
                             0);
     }
-
-    @Override
-    protected Vector getNormal(double t) {
-        Vector v = getTangent(t);
-        double length = Math.sqrt(Math.pow(v.x, 2) + Math.pow(v.y, 2));
-        return new Vector(-v.y / length, v.x / length, 0);
-    }
 }

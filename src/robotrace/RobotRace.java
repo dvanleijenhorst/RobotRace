@@ -112,9 +112,20 @@ public class RobotRace extends Base {
         // Track 2
         float g = 3.5f;
         raceTracks[1] = new BezierTrack(
-
-            new Vector[] {}
-
+            new Vector[] {
+                new Vector( 12, 4, 1),
+                new Vector( 12, 12, 1),
+                new Vector( 4, 4, 1),
+                new Vector(-4, 12, 1),
+                new Vector(-12, 20, 1),
+                new Vector(-20, 12, 1),
+                new Vector(-12, 4, 1),
+                new Vector(-4, -4, 1),
+                new Vector(-12, -12, 1),
+                new Vector(4, -16, 1),
+                new Vector(20, -20, 1),
+                new Vector(12, -4, 1)
+            }
         );
 
         // Initialize the terrain
