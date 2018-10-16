@@ -16,6 +16,7 @@ public class BezierTrack extends RaceTrack {
     
     @Override
     protected Vector getPoint(double t) {
+        t %= 1;
         if (t == 0) {
             return controlPoints[0];
         }
@@ -39,6 +40,7 @@ public class BezierTrack extends RaceTrack {
 
     @Override
     protected Vector getTangent(double t) {
+        t %= 1;
         if (t == 0) {
             return new Vector(  -3 * controlPoints[0].x +
                                 3 * controlPoints[1].x,

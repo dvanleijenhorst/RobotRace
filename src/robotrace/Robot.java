@@ -16,12 +16,12 @@ class Robot {
     public Vector position = new Vector(0, 0, 0);
     
     /** The direction in which the robot is running. */
-    public Vector direction = new Vector(1, 0, 0);
+    public Vector direction[] = { new Vector(0, 1, 0), new Vector(0, 1, 0) };
 
     /** The material from which this robot is built. */
     private final Material material;
-    
-    
+
+    public double totalAngle[] = { 0, 0 };
 
     /**
      * Constructs the robot with initial parameters.
@@ -42,6 +42,8 @@ class Robot {
         gl.glMaterialf(gl.GL_FRONT_AND_BACK, gl.GL_SHININESS, material.shininess);
 
         gl.glPushMatrix();
+            gl.glRotated(90, 0, 0, 1);
+            gl.glScaled(0.25,0.25,0.25);
             gl.glTranslated(0, 0, 4.5 + Math.cos(tAnim * 2) * .125);
             gl.glScaled(1, 2, 3);
             glut.glutSolidCube(1);

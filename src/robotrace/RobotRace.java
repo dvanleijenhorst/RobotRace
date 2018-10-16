@@ -114,7 +114,8 @@ public class RobotRace extends Base {
         // Track 2
         float g = 3.5f;
         raceTracks[1] = new BezierTrack(
-            new Vector[] {
+            // First bezier, more complex
+            /*new Vector[] {
                 new Vector( 12, 4, 1),
                 new Vector( 12, 12, 1),
                 new Vector( 4, 4, 1),
@@ -127,6 +128,21 @@ public class RobotRace extends Base {
                 new Vector(4, -16, 1),
                 new Vector(20, -20, 1),
                 new Vector(12, -4, 1)
+            }*/
+            // Simpler bezier
+            new Vector[] {
+                new Vector(5, 0, 1),
+                new Vector(5, 10, 1),
+                new Vector(20, 20, 1),
+                new Vector(0, 20, 1),
+                new Vector(-20, 20, 1),
+                new Vector(-5, 10, 1),
+                new Vector(-5, 0, 1),
+                new Vector(-5, -10, 1),
+                new Vector(-20, -20, 1),
+                new Vector(0, -20, 1),
+                new Vector(20, -20, 1),
+                new Vector(5, -10, 1)
             }
         );
 
@@ -231,16 +247,41 @@ public class RobotRace extends Base {
         // Draw the (first) robot.
         gl.glUseProgram(robotShader.getProgramID());
 
-        gl.glTranslated(0, 10, 0);
-        float t = (float)(System.currentTimeMillis() - startTime) / 250;
-        robots[0].draw(gl, glu, glut, t);
-        gl.glTranslated(0, -5, 0);
-        robots[1].draw(gl, glu, glut, t);
-        gl.glTranslated(0, -5, 0);
-        robots[2].draw(gl, glu, glut, t);
-        gl.glTranslated(0, -5, 0);
-        robots[3].draw(gl, glu, glut, t);
-        gl.glTranslated(0, 10, 0);
+        float t = ((float)(System.currentTimeMillis() - startTime) / 250);
+        for (int i = 0; i < 4; i++) {
+            gl.glPushMatrix();
+
+            Vector p = raceTracks[gs.trackNr].getLanePoint(i, t / 50);
+            Vector v = raceTracks[gs.trackNr].getLaneTangent(i, t / 50);
+            Vector f = robots[i].direction[gs.trackNr];
+
+            gl.glTranslated(p.x, p.y, p.z);
+
+            // Angle between f and v
+            double fdotv = f.x * v.x + f.y * v.y + f.z * v.z;
+            double lf = Math.sqrt(Math.pow(f.x, 2) + Math.pow(f.y, 2) + Math.pow(f.z, 2));
+            double lv = Math.sqrt(Math.pow(v.x, 2) + Math.pow(v.y, 2) + Math.pow(v.z, 2));
+
+            // Since acos returns a radian, we convert to degrees
+            double angle = Math.acos(fdotv / (lf * lv)) * 180 / Math.PI;
+
+            // Bends can go any way, so we account for negative angles as well
+            double crossz = f.x * v.y - f.y * v.x;
+            crossz /= Math.abs(crossz);
+
+            robots[i].totalAngle[gs.trackNr] += (crossz * angle);
+            gl.glRotated(robots[i].totalAngle[gs.trackNr], 0, 0, 1);
+
+            robots[i].totalAngle[1 - gs.trackNr] = 0;
+            robots[i].direction[1 - gs.trackNr] = new Vector(0, 1, 0);
+
+            robots[i].position = p;
+            robots[i].direction[gs.trackNr] = v;
+
+            robots[i].draw(gl, glu, glut, t);
+
+            gl.glPopMatrix();
+        }
 
 
         // Draw the race track.
