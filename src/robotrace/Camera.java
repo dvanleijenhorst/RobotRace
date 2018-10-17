@@ -49,6 +49,12 @@ class Camera {
      * The camera should view from the perspective of the robot.
      */
     private void setFirstPersonMode(GlobalState gs, Robot focus) {
-
+        eye.x = focus.position.x;
+        eye.y = focus.position.y;
+        eye.z = focus.position.z + 2;
+        center = new Vector(eye.x + focus.direction[gs.trackNr].x,
+                            eye.y + focus.direction[gs.trackNr].y,
+                            eye.z);
+        up = Vector.Z;
     }
 }

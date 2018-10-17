@@ -23,6 +23,12 @@ class Robot {
 
     public double totalAngle[] = { 0, 0 };
 
+    public float baseSpeed;
+
+    public float t;
+
+    public int e, f;
+
     /**
      * Constructs the robot with initial parameters.
      */
@@ -110,5 +116,7 @@ class Robot {
         gl.glPopMatrix();
     }
     
-    
+    public double getSpeed() {
+        return baseSpeed + e * Math.cos(f * t);
+    }
 }

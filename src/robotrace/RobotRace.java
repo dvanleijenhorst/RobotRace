@@ -1,5 +1,7 @@
 package robotrace;
 
+import java.util.Random;
+
 import static com.jogamp.opengl.GL2.*;
 import static robotrace.ShaderPrograms.*;
 import static robotrace.Textures.*;
@@ -72,6 +74,7 @@ public class RobotRace extends Base {
     private final Terrain terrain;
 
     private long startTime = System.currentTimeMillis();
+    private long updatedT = System.currentTimeMillis();
 
     /**
      * Constructs this robot race by initializing robots,
@@ -101,6 +104,14 @@ public class RobotRace extends Base {
         robots[3] = new Robot(Material.ORANGE
 
         );
+
+        Random r = new Random(System.currentTimeMillis());
+
+        for (Robot robot : robots) {
+            robot.baseSpeed = r.nextInt(60 - 40) + 40;
+            robot.e = r.nextInt(5 - 1) + 1;
+            robot.f = r.nextInt(255 - 245) + 245;
+        }
 
         // Initialize the camera
         camera = new Camera();
@@ -247,12 +258,21 @@ public class RobotRace extends Base {
         // Draw the (first) robot.
         gl.glUseProgram(robotShader.getProgramID());
 
-        float t = ((float)(System.currentTimeMillis() - startTime) / 250);
+        long oldT = System.currentTimeMillis() - startTime;
+        float t = oldT - updatedT;
+        updatedT = oldT;
+
         for (int i = 0; i < 4; i++) {
             gl.glPushMatrix();
 
-            Vector p = raceTracks[gs.trackNr].getLanePoint(i, t / 50);
-            Vector v = raceTracks[gs.trackNr].getLaneTangent(i, t / 50);
+            if (robots[i].t == 0) {
+                robots[i].t = oldT;
+            } else {
+                robots[i].t += t / robots[i].getSpeed();
+            }
+
+            Vector p = raceTracks[gs.trackNr].getLanePoint(i, robots[i].t / 250);
+            Vector v = raceTracks[gs.trackNr].getLaneTangent(i, robots[i].t / 250);
             Vector f = robots[i].direction[gs.trackNr];
 
             gl.glTranslated(p.x, p.y, p.z);
@@ -278,11 +298,10 @@ public class RobotRace extends Base {
             robots[i].position = p;
             robots[i].direction[gs.trackNr] = v;
 
-            robots[i].draw(gl, glu, glut, t);
+            robots[i].draw(gl, glu, glut, robots[i].t * robots[i].baseSpeed / 250);
 
             gl.glPopMatrix();
         }
-
 
         // Draw the race track.
         gl.glUseProgram(trackShader.getProgramID());

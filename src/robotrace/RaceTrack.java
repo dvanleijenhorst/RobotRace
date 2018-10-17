@@ -30,7 +30,6 @@ abstract class RaceTrack {
      * Draws this track, based on the control points.
      */
     public void draw(GL2 gl, GLU glu, GLUT glut) {
-        ShaderPrograms.trackShader.useProgram(gl);
         gl.glColor3f(1, 1, 1);
 
         drawTracks(gl);
