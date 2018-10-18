@@ -30,7 +30,6 @@ abstract class RaceTrack {
      * Draws this track, based on the control points.
      */
     public void draw(GL2 gl, GLU glu, GLUT glut) {
-        ShaderPrograms.trackShader.useProgram(gl);
         gl.glColor3f(1, 1, 1);
 
         drawTracks(gl);
@@ -38,7 +37,7 @@ abstract class RaceTrack {
     }
 
     private void drawTracks(GL2 gl) {
-        final float N = 24;
+        final float N = 48;
         Vector rem = getPoint(0);
         Vector remn = getNormal(0);
 
@@ -70,7 +69,7 @@ abstract class RaceTrack {
     }
 
     private void drawBricks(GL2 gl) {
-        final float N = 24;
+        final float N = 48;
         Vector rem = getPoint(0);
         Vector remn = getNormal(0);
 
@@ -111,8 +110,8 @@ abstract class RaceTrack {
         double x = lane - 1.5;
         Vector v = getPoint(t);
         Vector n = getNormal(t);
-        return new Vector(  v.x + x * n.x,
-                            v.y + x * n.y,
+        return new Vector(  v.x + laneWidth * x * n.x,
+                            v.y + laneWidth * x * n.y,
                             v.z);
     }
     

@@ -1,5 +1,7 @@
 package robotrace;
 
+import java.util.Random;
+
 import static com.jogamp.opengl.GL2.*;
 import static robotrace.ShaderPrograms.*;
 import static robotrace.Textures.*;
@@ -72,6 +74,7 @@ public class RobotRace extends Base {
     private final Terrain terrain;
 
     private long startTime = System.currentTimeMillis();
+    private long updatedT = System.currentTimeMillis();
 
     /**
      * Constructs this robot race by initializing robots,
@@ -102,6 +105,14 @@ public class RobotRace extends Base {
 
         );
 
+        Random r = new Random(System.currentTimeMillis());
+
+        for (Robot robot : robots) {
+            robot.baseSpeed = r.nextInt(60 - 40) + 40;
+            robot.e = r.nextInt(5 - 1) + 1;
+            robot.f = r.nextInt(255 - 245) + 245;
+        }
+
         // Initialize the camera
         camera = new Camera();
 
@@ -114,7 +125,8 @@ public class RobotRace extends Base {
         // Track 2
         float g = 3.5f;
         raceTracks[1] = new BezierTrack(
-            new Vector[] {
+            // First bezier, more complex
+            /*new Vector[] {
                 new Vector( 12, 4, 1),
                 new Vector( 12, 12, 1),
                 new Vector( 4, 4, 1),
@@ -127,6 +139,21 @@ public class RobotRace extends Base {
                 new Vector(4, -16, 1),
                 new Vector(20, -20, 1),
                 new Vector(12, -4, 1)
+            }*/
+            // Simpler bezier
+            new Vector[] {
+                new Vector(5, 0, 1),
+                new Vector(5, 10, 1),
+                new Vector(20, 20, 1),
+                new Vector(0, 20, 1),
+                new Vector(-20, 20, 1),
+                new Vector(-5, 10, 1),
+                new Vector(-5, 0, 1),
+                new Vector(-5, -10, 1),
+                new Vector(-20, -20, 1),
+                new Vector(0, -20, 1),
+                new Vector(20, -20, 1),
+                new Vector(5, -10, 1)
             }
         );
 
@@ -190,7 +217,13 @@ public class RobotRace extends Base {
 
         // Update the view according to the camera mode and robot of interest.
         // For camera modes 1 to 4, determine which robot to focus on.
-        camera.update(gs, robots[0]);
+        Robot lowest = robots[0];
+        for (Robot robot : robots) {
+            if (robot.t < lowest.t) {
+                lowest = robot;
+            }
+        }
+        camera.update(gs, lowest);
         glu.gluLookAt(camera.eye.x(),    camera.eye.y(),    camera.eye.z(),
                       camera.center.x(), camera.center.y(), camera.center.z(),
                       camera.up.x(),     camera.up.y(),     camera.up.z());
@@ -231,17 +264,50 @@ public class RobotRace extends Base {
         // Draw the (first) robot.
         gl.glUseProgram(robotShader.getProgramID());
 
-        gl.glTranslated(0, 10, 0);
-        float t = (float)(System.currentTimeMillis() - startTime) / 250;
-        robots[0].draw(gl, glu, glut, t);
-        gl.glTranslated(0, -5, 0);
-        robots[1].draw(gl, glu, glut, t);
-        gl.glTranslated(0, -5, 0);
-        robots[2].draw(gl, glu, glut, t);
-        gl.glTranslated(0, -5, 0);
-        robots[3].draw(gl, glu, glut, t);
-        gl.glTranslated(0, 10, 0);
+        long oldT = System.currentTimeMillis() - startTime;
+        float t = oldT - updatedT;
+        updatedT = oldT;
 
+        for (int i = 0; i < 4; i++) {
+            gl.glPushMatrix();
+
+            if (robots[i].t == 0) {
+                robots[i].t = oldT;
+            } else {
+                robots[i].t += t / robots[i].getSpeed();
+            }
+
+            Vector p = raceTracks[gs.trackNr].getLanePoint(i, robots[i].t / 250);
+            Vector v = raceTracks[gs.trackNr].getLaneTangent(i, robots[i].t / 250);
+            Vector f = robots[i].direction[gs.trackNr];
+
+            gl.glTranslated(p.x, p.y, p.z);
+
+            // Angle between f and v
+            double fdotv = f.x * v.x + f.y * v.y + f.z * v.z;
+            double lf = Math.sqrt(Math.pow(f.x, 2) + Math.pow(f.y, 2) + Math.pow(f.z, 2));
+            double lv = Math.sqrt(Math.pow(v.x, 2) + Math.pow(v.y, 2) + Math.pow(v.z, 2));
+
+            // Since acos returns a radian, we convert to degrees
+            double angle = Math.acos(fdotv / (lf * lv)) * 180 / Math.PI;
+
+            // Bends can go any way, so we account for negative angles as well
+            double crossz = f.x * v.y - f.y * v.x;
+            crossz /= Math.abs(crossz);
+
+            robots[i].totalAngle[gs.trackNr] += (crossz * angle);
+            gl.glRotated(robots[i].totalAngle[gs.trackNr], 0, 0, 1);
+
+            robots[i].totalAngle[1 - gs.trackNr] = 0;
+            robots[i].direction[1 - gs.trackNr] = new Vector(0, 1, 0);
+
+            robots[i].position = p;
+            robots[i].direction[gs.trackNr] = v;
+
+            robots[i].draw(gl, glu, glut, robots[i].t * robots[i].baseSpeed / 250);
+
+            gl.glPopMatrix();
+        }
 
         // Draw the race track.
         gl.glUseProgram(trackShader.getProgramID());
