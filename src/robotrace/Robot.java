@@ -3,9 +3,6 @@ package robotrace;
 import com.jogamp.opengl.util.gl2.GLUT;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.glu.GLU;
-import static com.jogamp.opengl.GL.*;
-import static com.jogamp.opengl.GL2ES3.GL_QUADS;
-import static com.jogamp.opengl.fixedfunc.GLLightingFunc.*;
 
 /**
 * Represents a Robot, to be implemented according to the Assignments.
@@ -20,6 +17,16 @@ class Robot {
 
     /** The material from which this robot is built. */
     private final Material material;
+
+    public float headSize = 1.2f;
+    public float torsoLength = 3f;
+    public float torsoThickness = 1f;
+    public float armLength = 6;
+    public float armThickness = 1f;
+    public float legLength = 6;
+    public float legThickness = 1f;
+    
+    
 
     public double totalAngle[] = { 0, 0 };
 
@@ -41,6 +48,7 @@ class Robot {
      * Draws this robot (as a {@code stickfigure} if specified).
      */
     public void draw(GL2 gl, GLU glu, GLUT glut, float tAnim) {
+        Vector currentPosition = position.add(new Vector(0, 0, .5 * (this.legLength + this.torsoLength) + Math.cos(tAnim * 2) * .125));
         gl.glColor3f(0, 0, 0);
 
         gl.glMaterialfv(gl.GL_FRONT_AND_BACK, gl.GL_DIFFUSE, material.diffuse, 0);
@@ -50,35 +58,34 @@ class Robot {
         gl.glPushMatrix();
             gl.glRotated(90, 0, 0, 1);
             gl.glScaled(0.25,0.25,0.25);
-            gl.glTranslated(0, 0, 4.5 + Math.cos(tAnim * 2) * .125);
-            gl.glScaled(1, 2, 3);
+            gl.glTranslated(currentPosition.x, currentPosition.y, currentPosition.z);
+            gl.glScaled(this.torsoThickness, 2 * this.torsoThickness, this.torsoLength);
             glut.glutSolidCube(1);
-            gl.glScaled(1, (float)1/2, (float)1/3);
-            drawHead(gl, glu, glut, tAnim);
-            // draw left arm
-            gl.glTranslated(0, 1.5, 1.5);
+            gl.glScaled((float)1/this.torsoThickness, (float)1/(2*this.torsoThickness), (float)1/this.torsoLength);
 
-            drawLimb(gl, glu, glut, (float)Math.cos(tAnim) * 18, (float)(30 - Math.cos(tAnim) * 15));
+            drawHead(gl, glu, glut, tAnim);
+
+            // draw left arm
+            gl.glTranslated(0, this.torsoThickness + .5 * this.armThickness, .5 * this.torsoLength);
+            drawArm(gl, glu, glut, (float)Math.cos(tAnim) * 18, (float)(30 - Math.cos(tAnim) * 15));
             // draw right arm
-            gl.glTranslated(0, -3, 0);
-            drawLimb(gl, glu, glut, -(float)Math.cos(tAnim) * 18,  (float)(30 + Math.cos(tAnim) * 15));
+            gl.glTranslated(0, -this.torsoThickness * 2 - this.armThickness, 0);
+            drawArm(gl, glu, glut, -(float)Math.cos(tAnim) * 18,  (float)(30 + Math.cos(tAnim) * 15));
 
             // draw left leg
-            gl.glTranslated(0, 2, -3);
-//            drawLimb(gl, glu, glut, -(float)Math.cos(tAnim) * 25,  (float)(-25 + Math.cos(tAnim * 2)));
-            drawLimb(gl, glu, glut, -(float)Math.cos(tAnim) * 25,  (float)(-18.5 - Math.cos(tAnim + 3.14/2) * 16.5));
+            gl.glTranslated(0, 2 * this.torsoThickness, -this.torsoLength);
+            drawLeg(gl, glu, glut, -(float)Math.cos(tAnim) * 25,  (float)(-18.5 - Math.cos(tAnim + 3.14/2) * 16.5));
             // draw right leg
-            gl.glTranslated(0, -1, 0);
-            drawLimb(gl, glu, glut, (float)Math.cos(tAnim) * 25, (float)(-18.5 + Math.cos(tAnim + 3.14/2) * 16.5));
+            gl.glTranslated(0, -this.torsoThickness, 0);
+            drawLeg(gl, glu, glut, (float)Math.cos(tAnim) * 25, (float)(-18.5 + Math.cos(tAnim + 3.14/2) * 16.5));
         gl.glPopMatrix();
-//        gl.glTranslated(0, 0, -(4.5 + Math.cos(tAnim * 2) * .125));
     }
 
     private void drawHead(GL2 gl, GLU glu, GLUT glut, float tAnim) {
         gl.glColor3f(0, 0, 0);
         gl.glPushMatrix();
-            gl.glTranslated(0, 0, 2);
-            glut.glutSolidCube((float)1.2);
+            gl.glTranslated(0, 0, .5 * (this.torsoLength + this.headSize));
+            glut.glutSolidCube(this.headSize);
             drawHat(gl, glu, glut, tAnim);
         gl.glPopMatrix();
     }
@@ -86,30 +93,38 @@ class Robot {
     private void drawHat(GL2 gl, GLU glu, GLUT glut, float tAnim) {
         gl.glColor3f(0, 0, 0);
         gl.glPushMatrix();
-            gl.glTranslated(0, 0, .5);
+            gl.glTranslated(0, 0, this.headSize * .5);
             glut.glutSolidCone(1.5, 1, 10, 10);
         gl.glPopMatrix();
     }
 
-    private void drawLimb(GL2 gl, GLU glu, GLUT glut, float joint1, float joint2) {
+    private void drawArm(GL2 gl, GLU glu, GLUT glut, float joint1, float joint2) {
+        drawLimb(gl, glu, glut, joint1, joint2, 0.5f, this.armLength, this.armThickness);
+    }
+
+    private void drawLeg(GL2 gl, GLU glu, GLUT glut, float joint1, float joint2) {
+        drawLimb(gl, glu, glut, joint1, joint2, 0f, this.legLength, this.legThickness);
+    }
+
+    private void drawLimb(GL2 gl, GLU glu, GLUT glut, float joint1, float joint2, float jointHeight, float length, float thickness) {
         gl.glColor3f(1, 0, 0);
         gl.glPushMatrix();
             // translate to joint position
-            gl.glTranslated(0, 0, -0.5);
+            gl.glTranslated(0, 0, -jointHeight);
             gl.glRotated(joint1, 0, 1, 0);
-            gl.glTranslated(0, 0, 0.5);
+            gl.glTranslated(0, 0, jointHeight);
 
             // draw top of limb
-            gl.glScaled(1, 1, 1.5);
+            gl.glScaled(thickness, thickness, .25 * length);
             gl.glTranslated(0, 0, -0.5);
             glut.glutSolidCube(1);
 
             // do another joint
-            gl.glScaled(1, 1, 1/1.5);
+            gl.glScaled(1/thickness, 1/thickness, 4/length);
             gl.glTranslated(0, 0, -0.5);
             gl.glRotated(-joint2, 0, 1, 0);
             gl.glTranslated(0, 0, 0.5);
-            gl.glScaled(1, 1, 1.5);
+            gl.glScaled(thickness, thickness, .25*length);
 
             gl.glTranslated(0, 0, -1);
             glut.glutSolidCube(1);
