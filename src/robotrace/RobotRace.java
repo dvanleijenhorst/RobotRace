@@ -4,7 +4,6 @@ import java.util.Random;
 
 import static com.jogamp.opengl.GL2.*;
 import static robotrace.ShaderPrograms.*;
-import static robotrace.Textures.*;
 
 /**
  * Handles all of the RobotRace graphics functionality,
@@ -267,6 +266,14 @@ public class RobotRace extends Base {
         long oldT = System.currentTimeMillis() - startTime;
         float t = oldT - updatedT;
         updatedT = oldT;
+        robots[0].position = new Vector(0, 7.5, 0);
+        robots[0].headSize = 1 + (float)gs.sliderA;
+        robots[0].torsoLength = 2 + (float)gs.sliderB * 2;
+        robots[0].armLength = 4 + (float)gs.sliderC * 4;
+        robots[0].legLength = 4 + (float)gs.sliderD * 4;
+        robots[0].torsoThickness = 1 + (float)gs.sliderE;
+        robots[0].legThickness = 1 + (float)gs.sliderE;
+        robots[0].armThickness = 1 + (float)gs.sliderE;
 
         for (int i = 0; i < 4; i++) {
             gl.glPushMatrix();
