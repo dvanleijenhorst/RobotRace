@@ -48,7 +48,7 @@ class Robot {
      * Draws this robot (as a {@code stickfigure} if specified).
      */
     public void draw(GL2 gl, GLU glu, GLUT glut, float tAnim) {
-        Vector currentPosition = position.add(new Vector(0, 0, .5 * (this.legLength + this.torsoLength) + Math.cos(tAnim * 2) * .125));
+        Vector currentPosition = new Vector(0, 0, .5 * (this.legLength + this.torsoLength) + Math.cos(tAnim * 2) * .125);
         gl.glColor3f(0, 0, 0);
 
         gl.glMaterialfv(gl.GL_FRONT_AND_BACK, gl.GL_DIFFUSE, material.diffuse, 0);
